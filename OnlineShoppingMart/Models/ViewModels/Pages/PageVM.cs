@@ -15,7 +15,7 @@ namespace OnlineShoppingMart.Models.ViewModels.Pages
 
 
     public PageVM(PageDTO row) {
-            id = row.id;
+            Id = row.Id;
             Title = row.Title;
             Slug = row.Slug;
             Body = row.Body;
@@ -25,7 +25,7 @@ namespace OnlineShoppingMart.Models.ViewModels.Pages
 
 
         }
-        public int id { get; set; }
+        public int Id { get; set; }
         [Required]
         [StringLength(50,MinimumLength =3)] 
         public string Title { get; set; }

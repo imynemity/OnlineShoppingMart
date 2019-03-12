@@ -11,7 +11,7 @@ namespace OnlineShoppingMart.Models.Data
     public class PageDTO
     {
         [Key]
-        public int id { get; set; }
+        public int Id { get; set; }
         public string Title { get; set; }
         public string Slug { get; set; }
         public string Body{ get; set; }
