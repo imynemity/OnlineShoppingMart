@@ -1,16 +1,16 @@
 ﻿@model IEnumerable<OnlineShoppingMart.Models.ViewModels.Shop.CategoryVM>
 
 @{
-                /**/
+    
 
-                ViewBag.Title = "Categories";
+    ViewBag.Title = "Categories";
 }
 
 <h2>Categories</h2>
-<div class="new-cat">
+ <div class="new-cat">
     <input type="text" id="newcatname" />
     <p>
-        <a href="#" id="newcata">Add a new category</a>
+        <a href="#" id="newcata">Add category</a>
         <span class="ajax-text">
             <img src="~/Content/img/ajax-loader.gif" />
         </span>
@@ -19,14 +19,17 @@
 
 
 
-</div>
+</div> 
+
+
+
 @if (!Model.Any())
 {
     <h1 class="text-center">There are no categories</h1>
 }
 else
 {
-    <table class="table sorting" id="pages">
+    <table class="table sorting categories" id="pages">
         <tr class="home">
             <th>
                 @Html.DisplayNameFor(model => model.Name)
@@ -37,21 +40,144 @@ else
 
         @foreach (var item in Model)
         {
-<tr>
-    <td>
+            <tr id="id_@item.Id">
+                <td>
 
-        @Html.EditorFor(modelItem => item.Name, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
-    </td>
+                    @Html.EditorFor(modelItem => item.Name, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                </td>
 
-    <td>
+                <td>
 
-        @Html.ActionLink("Delete", "DeleteCategory", new { id = item.Id }, new { @class = "delete" })
-    </td>
-</tr>
-}
+                    @Html.ActionLink("Delete", "DeleteCategory", new { id = item.Id }, new { @class = "delete" })
+                </td>
+            </tr>
+        }
 
     </table>
 
 
+
+}
+@section Scripts {
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+
+    <script>
+        $(function () {
+
+            var newCatA = $("a#newcata");
+            var newCatTextInput = $("#newcatname");
+            var ajaxText = $("span.ajax-text");
+            var table = $("table#pages tbody");
+
+
+            newCatTextInput.keyup(function (e) {
+                if (e.keyCode == 13) {
+                    newCatA.click();
+                }
+
+
+            });
+
+            newCatA.click(function (e) {
+                e.preventDefault();
+                var catName = newCatTextInput.val();
+                if (catName.length < 2) {
+                    alert("Category name must be at least 2 characters long");
+                    return false;
+                }
+
+                ajaxText.show();
+                var url = "/admin/shop/AddNewCategory";
+                $.post(url, { catName: catName }, function (data) {
+
+                    var response = data.trim();
+                    if (response == "titletaken") {
+                        ajaxText.html("<span class=alert alert-danger>That title is taken</span>") 
+                    setTimeout(function () {
+
+                        ajaxText.fadeOut("fast", function () {
+                            ajaxText.html("<img src=/Content/img/ajax-loader.gif />");
+
+                        });
+                    }, 2000); return false;
+                }
+                else {
+                        if (!$("table#pages").length) {
+
+                            location.reload();
+                        }
+                        else {
+                            ajaxText.html("<span class=alert alert-success>The Category has been added!</span>")
+                            setTimeout(function () {
+
+                                ajaxText.fadeOut("fast", function () {
+                                    ajaxText.html("<img src=/Content/img/ajax-loader.gif />");
+
+                                });
+                            }, 2000);
+                            newCatTextInput.val("");
+                            var toApeend = $("table#pages tbody tr:last").clone();
+                            toApeend.attr("id", "id_" + data);
+                            toApeend.find("#item_Name").val(catName);
+                            toApeend.find("a.delete").attr("href", "/admin/shop/DeleteCategory/" + data);
+                            table.append(toAppend);
+                            table.sortable("refresh");
+
+
+                        }
+                    }
+
+
+
+                });
+
+
+                });
+
+
+            $("table#pages tbody").sortable({
+                items: "tr:not(.home)",
+                placeholde: "ui-state-highlight",
+                update: function () {
+                    var ids = $("table#pages tbody").sortable("serialize");
+                    var url = "/Admin/Shop/ReorderCategories";
+                    $.post(url, ids, function (data) {
+
+
+
+
+
+                    });
+
+
+                }
+
+
+
+            });
+
+
+
+
+
+
+
+
+
+           
+                $("body").on("click", "a.delete", function () { 
+
+                if (!confirm("Confirm Category Deletion ")
+                ) return false;
+
+            });
+
+
+
+
+           
+        });
+
+    </script>
 
 }
